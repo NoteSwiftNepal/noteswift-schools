@@ -1,0 +1,627 @@
+═══════════════════════════════════════════════════════════════════════════
+NOTESWIFT-SCHOOL — PHASE 1 BUILD PROMPT (FRONTEND ONLY, MOCK/SEED DATA)
+═══════════════════════════════════════════════════════════════════════════
+Paste this entire file as-is to your AI coding agent (e.g. Claude Code)
+while it has access to the noteswift root folder.
+
+───────────────────────────────────────────────────────────────────────────
+ROLE & CONTEXT
+───────────────────────────────────────────────────────────────────────────
+You are working inside the "noteswift" monorepo/root folder. It contains
+these sibling folders:
+
+  noteswift-backend     → unified backend, serves teacher, student,
+                           parent, and (eventually) school apps. DO NOT
+                           TOUCH in this phase.
+  noteswift-teacher     → finished frontend app. DO NOT MODIFY. Reference
+                           only — defines the visual system you must
+                           replicate.
+  noteswift-student     → finished frontend app. DO NOT MODIFY. Reference
+                           only — same purpose as above.
+  noteswift-parents     → another frontend app, may be finished or in
+                           progress. DO NOT MODIFY. Reference only.
+  noteswift-schools      → THIS IS YOUR WORKSPACE. Currently incomplete /
+                           to be built. All your work happens here. This
+                           is the School Administrator / Principal-facing
+                           dashboard app.
+
+Your job in this phase is to build out noteswift-school as a standalone,
+independently runnable frontend application — fully featured, fully
+themed, fully responsive, secure by default, and bug-free in its
+functional flows — powered by local mock/seed data (no live backend
+calls yet).
+
+There are two phases total. You are ONLY doing Phase 1 right now.
+  Phase 1 (THIS TASK)  → Frontend UI + UX + mock data, runs standalone,
+                           production-quality, backend-integration-ready.
+  Phase 2 (FUTURE TASK, NOT NOW) → Design/extend noteswift-backend schema,
+                           routes, auth, and models for school-admin
+                           accounts, then wire noteswift-school to the
+                           real API.
+
+Do not start any Phase 2 work. Do not edit noteswift-backend,
+noteswift-teacher, noteswift-student, or noteswift-parents. If you believe
+something in those folders MUST change for the school app to work
+correctly later, just write it down in NOTES_FOR_BACKEND_PHASE.md inside
+noteswift-school — do not act on it now.
+
+───────────────────────────────────────────────────────────────────────────
+STEP 0 — DISCOVERY (DO THIS BEFORE WRITING ANY CODE)
+───────────────────────────────────────────────────────────────────────────
+1. Open and read through noteswift-teacher and noteswift-student in full
+   (and noteswift-parents if it's already built out) and extract, with
+   exact values/snippets, not paraphrases:
+   a. Tech stack: framework (React/Next/Vite etc.), language (JS/TS),
+      styling approach (Tailwind config / CSS variables / styled-components
+      / CSS modules), state management (Context/Redux/Zustand/React Query
+      etc.), routing library, HTTP client (axios/fetch wrapper), form
+      library, icon library, charting library, animation library, date
+      library, package manager, and the exact versions in package.json.
+   b. Theme system: every color token, font family + weights, font import
+      method, border-radius scale, spacing scale, shadow tokens,
+      breakpoints, AND the exact icon library/icon set in use (note the
+      package name, stroke width, sizing convention). If they live in
+      tailwind.config.* or a theme/tokens file or global CSS :root
+      variables — copy that file's structure exactly (don't recreate it
+      from scratch, reuse/port it so all apps stay visually identical).
+   b2. Copy/tone: read existing UI strings across the other apps —
+      page titles, section headers, button labels, empty states, error
+      messages, toast/notification text — and note the vocabulary,
+      sentence length, and terminology choices (e.g. exact names used for
+      "Assignments" vs "Mock Tests" vs other recurring concepts) so
+      noteswift-school's copy matches the same professional, plain-spoken
+      voice and uses identical terminology for shared concepts.
+   c. Layout shell: sidebar structure (width, collapse behavior, sections,
+      nav badges/counters, active-state styling), topbar structure (title,
+      selector dropdowns, search bar, right-side icons/widgets), page
+      container/grid conventions, card component styling, table styling,
+      button variants, badge/chip/tag styling, modal/drawer patterns,
+      toast/notification patterns, loading and empty states, skeleton
+      loaders.
+   d. Auth flow pattern: how login is implemented (form fields, validation,
+      token storage, protected route wrapper, role-based access if any,
+      redirect behavior, error handling UI).
+   e. Folder/file naming conventions, component structure, how API calls
+      are organized (services/api folder pattern, env variable naming),
+      and any existing mock/seed/fixtures pattern.
+   f. Any shared/common package in the monorepo root (e.g. a `packages/ui`
+      or `shared` folder) that other apps import from. If it exists,
+      noteswift-school must use it too instead of duplicating components.
+   g. Any existing responsiveness conventions (breakpoint values, mobile
+      sidebar/drawer pattern, fluid typography utilities like clamp() or
+      a type-scale system) and any existing security conventions (input
+      sanitization helpers, XSS-safe rendering patterns, auth-guard
+      patterns, CSP meta tags, env var handling for secrets) — reuse
+      these rather than inventing new ones.
+
+2. Open and read noteswift-backend to understand (read-only, do not edit):
+   a. Existing data models/schemas relevant to a school admin (School,
+      User/Staff/Teacher, Student, Class/Section, Attendance, Assignment,
+      Quiz/MockTest, Marks/Grades, Announcement/Notice, Message, Report).
+   b. Auth mechanism (JWT/session), token payload shape, role field
+      conventions (does a "school_admin"/"principal" role already exist
+      or is it implied?).
+   c. Existing API route naming conventions (REST shape, response
+      envelope format, pagination format, filtering/sorting query
+      params, error format) so the mock data layer mirrors the eventual
+      real response shapes.
+   Summarize all of this in NOTES_FOR_BACKEND_PHASE.md as you go — this
+   becomes the spec input for Phase 2 later.
+
+3. Reference file: a file named noteswift-school-dashboard.html (already
+   provided in this project) is the FEATURE/STRUCTURE/CONTENT reference
+   ONLY. IMPORTANT: its colors, fonts, and visual styling must be
+   IGNORED — do not reuse its navy/blue palette, its DM Sans font, its
+   card/table/badge CSS, or any inline styles from it. Only use it to
+   understand WHAT the app needs to contain — the information
+   architecture, page list, dashboard sections, widgets, table columns,
+   stat cards, and data points described below. The final visual skin
+   comes entirely from noteswift-teacher/noteswift-student/noteswift-
+   parents (Step 0).
+
+───────────────────────────────────────────────────────────────────────────
+STEP 1 — FEATURE / PAGE SPEC (extracted from the reference file)
+───────────────────────────────────────────────────────────────────────────
+Build the following navigation structure and pages. Re-skin everything in
+the noteswift theme; keep this structure and the data widgets.
+
+SIDEBAR NAVIGATION
+  - Dashboard
+  Students
+    - Student Directory
+    - Leaderboard
+    - Student Progress
+    - Attendance
+  Academic Management
+    - Assignments (with live count badge)
+    - Quizzes
+    - Mock Tests
+    - Study Materials
+  Analytics
+    - Academic Analytics
+    - Engagement
+    - At-Risk Students (with live count badge)
+  Communication
+    - Announcements
+    - Parent Communication
+  More
+    - Reports
+    - Settings
+  Sidebar footer: logged-in admin's profile chip (avatar, name "Principal
+  [Name]", role label "School Administrator") — style per the existing
+  sidebar footer pattern used elsewhere in noteswift.
+
+TOPBAR (present on every authenticated page)
+  - Page title
+  - School selector dropdown (school name) — supports a school-admin
+    account potentially overseeing more than one school/branch; build as
+    a real stateful selector that other pages can read from, backed by
+    mock data with at least 1 school seeded (structure it to support
+    multiple).
+  - Global search (students, classes, assignments) — UI + working filter
+    against mock data, not just a static input.
+  - Academic year selector (e.g. "2081–82") — stateful, affects which
+    seeded data set is shown if you choose to seed more than one year;
+    at minimum wire it as a real selector even if only one year of mock
+    data exists.
+  - Notification bell with unread badge → dropdown list (mock data).
+  - Message icon → quick link into Parent Communication / Messages.
+  - Profile avatar → profile/account menu (view profile, settings,
+    logout).
+
+PAGE: LOGIN — must be a 1:1 reuse of the existing noteswift login
+  component (same one teacher/student/parents use), re-pointed at the
+  school-admin flow. Do not redesign from scratch; open the existing
+  Login page/component and adapt it.
+  - Email/phone + password fields, validation, show/hide password,
+    identical to the source app's fields and validation rules.
+  - "Forgot password" link (UI only, no backend yet).
+  - REQUIRED: demo credentials pre-filled into the email/password fields
+    on load (e.g. principal.sharma@example.com / password123) so the
+    form is ready to submit with zero typing.
+  - Demo credentials also shown as visible text on screen, matching
+    whatever convention the other noteswift apps already use for this.
+  - Submit calls a mock auth function returning a fake JWT + admin
+    profile + linked school(s), stored the same way other noteswift apps
+    store auth (so swapping in the real API later is a one-line change).
+  - Protected route wrapper redirecting unauthenticated users to /login.
+  - Logout clears session and redirects to /login.
+  - Seed the mock auth data so the pre-filled demo credentials work
+    end-to-end on submit (login → fully populated dashboard).
+
+PAGE: DASHBOARD (home)
+  1. Welcome banner — time-of-day-aware greeting to the admin, school
+     name, address/academic-year line, "updated just now" timestamp, plus
+     4 quick stats: total students (with enrollment trend), total
+     teachers (with trend), total sections/grade range, today's
+     attendance % (with trend vs average).
+  2. KPI card row — 6 cards: active students this week, average
+     attendance rate, average academic score, weekly study hours, average
+     assignment completion %, at-risk student count. Each card: label,
+     big value, trend indicator (up/down + %), and an icon — built as a
+     real reusable KPI-card component, color-varied per metric type using
+     theme tokens (not the reference file's literal hex colors).
+  3. School Performance Overview section:
+     a. Weekly academic performance chart — line/area chart, school-wide
+        average score trend over 8 weeks, with a "This Term" tag and a
+        "View All" link.
+     b. Subject performance — horizontal progress bars per subject
+        (Mathematics, Science, English, Social Studies, Computer Science,
+        Nepali, etc.) with percentage labels, color-coded by band.
+     c. Monthly growth trend — area chart comparing this year vs last
+        year school-wide score improvement across 12 months, with a
+        legend.
+  4. Student Leaderboard section — tabbed table (Weekly / Monthly /
+     per-grade tabs), columns: rank (with medal styling for top 3),
+     student (avatar + name), class, attendance %, study hours, average
+     score, and an achievement badge (e.g. "Top Scholar", "Rising Star").
+     Include a "Full Leaderboard →" link target (build the linked page
+     too, even if simple).
+  5. Attendance & At-Risk section:
+     a. Attendance Monitoring card — 4 stat tiles (school average,
+        absent today, present today, late arrivals), plus a class-wise
+        attendance breakdown list with progress bars per class/section.
+     b. At-Risk Students card — count summary, then a list of at-risk
+        students each with avatar, name, class/roll, risk tags (e.g.
+        "Low Attendance", "Missing Assignments", "Score Below 40%",
+        "Declining Trend"), and a context-specific action link ("Notify
+        Parent →", "Schedule Meeting →", "View Profile →", "Assign
+        Mentor →").
+  6. Activity Heatmap — weekly-grid heatmap of student platform
+     engagement over ~10 weeks, with a 5-step "Less Active → Most Active"
+     legend, built as a real component (not a static image).
+  7. Assignment Management section — summary stat row (total
+     assignments, active now, total submitted, pending, average score),
+     "+ Create Assignment" and "Filter" actions (UI-functional against
+     mock data), and a full assignment table: title, subject, grade, due
+     date, submission rate (with mini progress bar), and status chip
+     (Active / Closed / Pending / Draft).
+  8. Quizzes & Engagement Analytics section:
+     a. Quiz & Mock Test Overview card — stat grid (total quizzes,
+        active, average score, pass rate) plus subject-wise quiz
+        performance bars.
+     b. Platform Engagement card — stat grid (videos watched, notes
+        accessed, assignments, quiz attempts, daily active students) plus
+        a weekly engagement bar chart.
+  9. AI Insights & School Benchmarking section:
+     a. AI Insights card — list of insight items typed alert / warning /
+        good / info, each with an icon and one-line text (e.g. score
+        drops, at-risk clusters, high-engagement departments, completion
+        improvements). Mock data fine; structure for a real
+        recommendation engine later.
+     b. School Benchmarking card — horizontal comparison bars: your
+        school vs district average vs municipality average vs top
+        school, each with a value, a colored bar, and a chip; plus a
+        one-line ranking summary (e.g. "ranks #3 of 18 partner schools").
+  10. Communication & Reports section:
+      a. Parent Communication card — quick-action buttons (Send
+         Announcement, Notify Parents, Schedule Meeting, Broadcast
+         Message — "+ New Message" primary action), plus a recent
+         communications list (announcement/message/meeting items with
+         icon, title, recipient meta, relative time).
+      b. Reports card — a grid of report-generation buttons (Student,
+         Class, Attendance, Academic, Assignment, School Impact reports)
+         plus export-format buttons (PDF / Excel / CSV) — UI-functional
+         against mock data (e.g. actually triggers a mock "download" of a
+         generated stub file or shows a success toast), not dead buttons.
+
+PAGE: STUDENT DIRECTORY
+  - Searchable/filterable (by grade/section/status) table of all
+    students: avatar, name, class/roll, attendance %, average score,
+    status. Row click → student detail view (profile, performance
+    history, attendance history, assignment history).
+
+PAGE: LEADERBOARD (full)
+  - Full, paginated/sortable version of the dashboard leaderboard widget,
+    with the same tab filters (Weekly/Monthly/per-grade) plus search.
+
+PAGE: STUDENT PROGRESS
+  - Academic analytics per student/class: grade trend charts, subject
+    breakdowns, comparison to class/school average.
+
+PAGE: ATTENDANCE
+  - School-wide attendance: calendar/table views, class-wise breakdown,
+    filters by date range/grade/section, absentee lists, trend chart.
+
+PAGE: ASSIGNMENTS
+  - Full assignment management: create/edit (mock), list/filter/sort by
+    subject/grade/status, submission tracking, bulk actions if sensible.
+
+PAGE: QUIZZES
+  - Quiz list/management, performance breakdowns, create/edit (mock).
+
+PAGE: MOCK TESTS
+  - Mock test list/management, results, score distributions, comparisons.
+
+PAGE: STUDY MATERIALS
+  - Library/listing of uploaded study materials by subject/grade, upload
+    UI (mock), download/view actions.
+
+PAGE: ACADEMIC ANALYTICS
+  - Deeper charts: school-wide trends, subject comparisons, grade-level
+    comparisons, term-over-term analysis.
+
+PAGE: ENGAGEMENT
+  - Platform engagement analytics: detailed breakdowns of videos/notes/
+    quiz/assignment activity over time, per-class engagement comparisons.
+
+PAGE: AT-RISK STUDENTS (full)
+  - Full, filterable list of all at-risk students with the same risk-tag/
+    action pattern as the dashboard widget, plus filters by risk type.
+
+PAGE: ANNOUNCEMENTS
+  - Create/manage school-wide or targeted announcements (mock send),
+    history list with recipient counts and timestamps.
+
+PAGE: PARENT COMMUNICATION
+  - Messaging interface with parents: thread list, compose/reply (mock),
+    broadcast/notify-parents flows, meeting scheduling UI.
+
+PAGE: REPORTS
+  - Full report-generation center mirroring the dashboard's Reports card,
+    with report history (previously generated reports list) and the
+    same export options.
+
+PAGE: SETTINGS
+  - School profile (name, address, academic year config), admin account
+    settings, staff/role management UI (mock), notification preferences,
+    security section (password change, session management UI), logout.
+
+───────────────────────────────────────────────────────────────────────────
+STEP 2 — TECHNICAL REQUIREMENTS
+───────────────────────────────────────────────────────────────────────────
+1. Tech stack: IDENTICAL to the rest of noteswift — not "similar," not
+   "an equivalent alternative," not "a more modern choice." Concretely:
+   - Same framework + same major version.
+   - Same language choice (JS or TS) and same tsconfig strictness if TS.
+   - Same styling approach verbatim (Tailwind/CSS Modules/styled-
+     components — whichever is already used).
+   - Same state management library.
+   - Same routing library and major version.
+   - Same HTTP client / API-calling pattern.
+   - Same form library, icon library, charting library, animation
+     library, date library — reuse whichever the other apps already use,
+     do not introduce a different one.
+   - Same package manager and Node version expectations.
+   - Same linter/formatter config and project structure conventions
+     (folder names, file naming, alias paths).
+   Before writing package.json for noteswift-school, open the
+   package.json of noteswift-teacher, noteswift-student, and (if present)
+   noteswift-parents side by side and carry over matching dependencies
+   and versions for anything already in scope. Only add a new dependency
+   if the feature genuinely doesn't exist anywhere yet, and even then
+   prefer the same ecosystem already in use.
+
+2. Theme: port the exact theme tokens (colors, fonts, radii, shadows,
+   spacing, breakpoints) from the existing noteswift apps into
+   noteswift-school so every app in the suite is visually one consistent
+   design system. If a shared theme/package already exists, consume it
+   directly; otherwise copy the theme file(s) byte-for-byte equivalent.
+   Do not invent a new palette, do not reuse any color/font from the
+   school-dashboard reference HTML (its navy #3060ad-style palette and
+   DM Sans usage are NOT the source of truth — they are forbidden as a
+   direct copy; only the noteswift app theme is authoritative).
+
+3. Full responsiveness (REQUIRED, explicit deliverable):
+   - The app must be fully usable and visually correct across mobile
+     (~360–480px), tablet (~600–1024px), laptop (~1024–1440px), and large
+     desktop (1440px+) viewports — test and adjust at all of these, don't
+     just rely on one breakpoint.
+   - Sidebar collapses into a drawer/hamburger pattern on mobile/tablet,
+     matching whatever pattern the other noteswift apps already use (or,
+     if none exists yet, design one consistent with their theme and
+     document the choice for reuse by sibling apps later).
+   - All grids (KPI cards, charts, tables, leaderboard, at-risk list,
+     etc.) reflow appropriately at each breakpoint — multi-column on
+     desktop, single-column stacking on mobile — no horizontal overflow,
+     no clipped content, no overlapping elements at any width.
+   - Tables that don't fit narrow viewports get a sensible mobile
+     treatment (horizontal scroll with a visible scroll affordance, or a
+     card-based row layout on small screens) rather than breaking layout.
+   - Charts/canvas elements resize correctly on viewport/container resize
+     and on orientation change, without becoming blurry or misaligned.
+   - Touch targets (buttons, nav items, table action links) meet a
+     minimum comfortable tap-size on mobile.
+
+4. Dynamic/fluid text sizing (REQUIRED, explicit deliverable):
+   - Use a fluid type scale (e.g. CSS clamp()-based sizes, or a
+     responsive typography utility already present in the other
+     noteswift apps if one exists — reuse it) so headings, body text,
+     stat values, and labels scale smoothly across viewport sizes rather
+     than jumping abruptly at breakpoints or staying fixed-size and
+     causing overflow/truncation on small screens.
+   - Respect user/browser font-size preferences — use relative units
+     (rem/em) throughout rather than hardcoded px for font sizes, so the
+     app respects OS/browser accessibility zoom and text-size settings.
+   - Long content (student names, assignment titles, announcement text)
+     must truncate gracefully (ellipsis + full text on hover/tap, or
+     wrap) rather than breaking card/table layouts at any text length or
+     viewport size.
+
+5. Security measures (REQUIRED, explicit deliverable — frontend-
+   appropriate hardening, even though there's no real backend yet):
+   - Treat all mock/seeded "user-generated" content (e.g. announcement
+     text, message bodies, student/staff names) as untrusted: render via
+     framework-safe methods only — never use dangerouslySetInnerHTML /
+     innerHTML / v-html or equivalent with unsanitized content; if any
+     rich text must be rendered, sanitize it first using a library
+     already in the noteswift stack or a well-known sanitizer (e.g.
+     DOMPurify) and document the dependency choice.
+   - All forms (login, announcement composer, message composer, report
+     filters, search) must validate and sanitize input client-side
+     (length limits, type checks, no raw script injection vectors)
+     before it's used anywhere in the UI, even against mock data.
+   - Auth token / session storage must follow the same secure pattern as
+     the rest of noteswift (e.g. if they use httpOnly-cookie-style
+     patterns or a specific localStorage key convention with expiry
+     handling, mirror it exactly) — do not invent a less secure pattern
+     just because this is mock-only.
+   - Protected routes must hard-fail closed: any route requiring auth
+     must never flash protected content before redirecting an
+     unauthenticated user (no content flicker, no relying on client-side
+     checks alone if a more robust pattern exists elsewhere in the
+     stack).
+   - No secrets, API keys, or real credentials committed anywhere in the
+     codebase, including mock files — only clearly-labeled fake/demo
+     values.
+   - Add basic security-relevant meta tags / headers groundwork
+     consistent with the other apps (e.g. if they set a CSP meta tag,
+     referrer-policy, or X-Content-Type-Options via their hosting config,
+     mirror the same approach) so this app isn't a weaker link in the
+     suite.
+   - Avoid exposing internal mock-data implementation details in the UI
+     (no console.log of full auth objects/tokens in production build
+     paths, no verbose error messages that would leak structure once
+     real APIs are wired in — design error states to show user-friendly
+     messages now so the pattern is already correct for Phase 2).
+   - Rate-limit-style UX groundwork on the login form (disable submit
+     button while a mock request is "in flight", basic lockout/backoff
+     UI pattern after repeated failed attempts) even though there's no
+     real backend yet — this keeps the form ready for real auth
+     integration without UX rework later.
+
+6. No functional bugs (REQUIRED, explicit deliverable):
+   - Every interactive element (nav links, tabs, filters, search, sort,
+     dropdowns, modals, toasts, the school/year/student selectors, report
+     buttons, message compose, pagination) must actually work against the
+     mock data layer — no dead buttons, no console errors/warnings, no
+     broken links, no unhandled promise rejections.
+   - All loading, empty, and error states must be implemented for every
+     data-driven view (e.g. what the Student Directory looks like with
+     zero matching search results, what a chart looks like while
+     "loading," what happens if a mock async call is simulated to fail).
+   - Manually verify each page at each breakpoint from item 3 before
+     considering it done.
+
+6a. Error handling and null/undefined safety (REQUIRED, explicit
+    deliverable):
+   - Every component that reads from mock/seed data must defensively
+     handle missing, null, undefined, or empty values — a student with
+     no avatar initials, a class with zero enrolled students, an
+     announcement with no recipients yet, a chart with an empty dataset,
+     a search/filter with zero matches — none of these should ever throw,
+     render "undefined"/"NaN"/"null" as visible text, render a blank
+     broken layout, or crash the page. Provide sensible fallback UI
+     (placeholder avatar, "No data yet" / "No students match your
+     search" empty-state messaging, "—" for missing numeric values,
+     skeletons that resolve to empty-state cards rather than infinite
+     spinners).
+   - Wrap top-level route/page components in error boundaries so a
+     failure in one widget (e.g. a chart) degrades gracefully and shows
+     a recoverable error message there, without taking down the entire
+     dashboard.
+   - All mock async functions (in the data-access/service layer) must
+     support a simulated failure/error path, and every component calling
+     them must handle that path with a real error UI (not just a
+     console.error) — this is what will make the Phase-2 swap to a real,
+     occasionally-failing API safe and already-tested.
+   - Form validation errors (login, announcement composer, message
+     composer, settings forms) must be handled per-field with clear,
+     specific, professional messaging — never a raw stack trace, raw
+     validation-library output, or a generic "Something went wrong" when
+     a more specific message is knowable.
+   - Numeric/percentage calculations (averages, rates, trends) must guard
+     against divide-by-zero and empty-array cases (e.g. a brand-new class
+     with no attendance records yet should show "No data" rather than
+     "NaN%" or "Infinity%").
+   - Network/async timeouts (simulated) must be handled with a retry
+     affordance where appropriate, not a silently-stuck loading state.
+
+7. Mock data layer design (important for Phase 2 reuse):
+   - Put all mock data in a clearly isolated location, e.g.
+     src/mocks/ or src/data/seed/.
+   - Shape every mock object to mirror the likely real API response
+     shape inferred from noteswift-backend in Step 0 (same field names,
+     nesting, casing conventions, pagination envelope if backend uses
+     one).
+   - Build a thin data-access layer (e.g. src/services/*.ts) that
+     currently reads from mocks but is structured so each function's
+     internals can be swapped for a real axios/fetch call later without
+     changing any component code. Gate mock vs real behind a single
+     config flag/env var (e.g. VITE_USE_MOCKS=true), matching whatever
+     convention the other noteswift apps already use if one exists.
+   - Seed realistically: at least 1 school, 1000+ students isn't
+     necessary but seed enough variety (multiple grades/sections,
+     dozens of students with varied attendance/score profiles including
+     several genuinely "at-risk" ones, multiple teachers, several weeks
+     of attendance/performance history, a realistic mix of assignment/
+     quiz/mock-test states, several announcements/messages) that every
+     page on the nav looks fully populated and convincing, not sparse or
+     obviously fake.
+
+8. Routing: protected routes for everything except /login. Sensible
+   redirects (logged-out → /login, logged-in hitting /login →
+   /dashboard).
+
+9. Accessibility: proper semantic HTML, labelled form fields, keyboard-
+   navigable nav/menus/tabs/modals, visible focus states, sufficient
+   color contrast within the inherited theme, ARIA attributes where
+   native semantics fall short (e.g. tab panels, live regions for
+   toasts/notifications).
+
+10. Code quality: follow the same linting/formatting config as the other
+    apps if one exists at the repo root or per-app; otherwise mirror
+    their own per-app config. No TypeScript `any`-spam if the rest of the
+    suite uses strict typing — match their rigor.
+
+11. Icon system and content tone — no "AI-generated" feel (REQUIRED,
+    explicit deliverable):
+   - Icons: do NOT use raw emoji as icons anywhere in the UI (no 🏠, 📊,
+     🏆, ⚠️, 🤖, etc. standing in for icons), even though the reference
+     HTML uses emoji this way — that reference file is a rough concept
+     only. Instead, open noteswift-teacher/noteswift-student/noteswift-
+     parents and identify the exact icon library and icon set they
+     already use (e.g. lucide-react, heroicons, a custom SVG-icon
+     component) and use that same library/component pattern consistently
+     for every icon in noteswift-school — same stroke width, same sizing
+     scale, same color-via-currentColor approach, same way icons pair
+     with labels in nav items, buttons, stat cards, and badges. The
+     result should look like it was designed by the same person who
+     built the other three apps, not generated ad hoc.
+   - Visual polish: avoid generic "AI demo" tells — no rainbow-gradient
+     cards used indiscriminately, no excessive drop shadows/glow effects,
+     no mismatched corner-radius values between components, no decorative
+     elements that don't carry information. Every visual element should
+     read as a deliberate product design decision consistent with the
+     existing noteswift design language, not a default/template look.
+   - Copy and microcopy: write all UI text (page titles, section
+     headers, empty states, button labels, error messages, tooltips,
+     AI-insight strings, toast notifications) in plain, natural,
+     professional product language — the way a real EdTech product's
+     content/UX writer would phrase it. Avoid stock AI-generated phrasing
+     patterns: no "Unlock the power of...", no excessive exclamation
+     points, no em-dash-heavy sentence construction, no "seamlessly",
+     "effortlessly", "supercharge", "revolutionize", "game-changing", or
+     similar marketing filler. Keep sentences short, concrete, and
+     specific (e.g. "12 assignments overdue" not "Wow! You have a
+     whopping 12 overdue assignments to tackle!"). Match the register and
+     vocabulary already used in noteswift-teacher/noteswift-student/
+     noteswift-parents copy — read their existing UI strings first and
+     write in that same voice, including how they phrase similar concepts
+     (notifications, empty states, confirmations, error messages) so
+     terminology stays consistent across the whole suite (e.g. if they
+     say "Assignments" not "Tasks", or "Mock Test" not "Practice Exam",
+     follow their exact terminology).
+   - AI-insight and recommendation strings specifically: phrase these as
+     a knowledgeable school-operations analyst would, not as a chatbot —
+     state the finding and the implication plainly (e.g. "Grade 10
+     Mathematics average dropped 7% this month. Consider scheduling
+     additional revision sessions." rather than "🚨 Uh oh! It looks like
+     Grade 10 Math scores took a dip!").
+
+───────────────────────────────────────────────────────────────────────────
+STEP 3 — DELIVERABLES / DEFINITION OF DONE
+───────────────────────────────────────────────────────────────────────────
+- [ ] noteswift-school runs independently via its own dev script, no
+      backend required, no console errors or warnings.
+- [ ] Login page is a direct re-skin/reuse of the existing noteswift login
+      component, opens with demo credentials already filled in, and
+      logging in with them works end-to-end into a fully populated
+      dashboard.
+- [ ] All nav pages listed above exist, are reachable, and are populated
+      with realistic seed data — no placeholder "TODO" pages.
+- [ ] Visual theme (colors, fonts, spacing, component styling, sidebar/
+      topbar layout) is visibly and structurally consistent with the rest
+      of the noteswift suite, and contains NONE of the reference HTML's
+      original palette/fonts.
+- [ ] noteswift-school/package.json dependencies (framework, styling,
+      state, routing, http, forms, icons, charts, animation, dates) match
+      the rest of noteswift's choices and major versions — no substituted
+      or "upgraded" libraries.
+- [ ] App is fully responsive and visually correct at mobile, tablet,
+      laptop, and large-desktop widths — verified, not assumed.
+- [ ] Typography uses a fluid/relative type scale; no fixed-px font sizes
+      causing overflow or truncation issues at any tested width.
+- [ ] Security checklist from Step 2.5 is satisfied: no unsanitized HTML
+      injection, validated/sanitized form inputs, secure auth-storage
+      pattern matching the rest of the suite, fail-closed protected
+      routes, no committed secrets, no leaky error states.
+- [ ] Every interactive element works against mock data with no dead
+      buttons, no console errors, and proper loading/empty/error states.
+- [ ] Every component handles missing/null/undefined/empty data
+      gracefully (no "undefined"/"NaN"/"null" rendered, no crashes, no
+      broken layouts), error boundaries are in place, and form/async
+      errors show specific, professional messaging.
+- [ ] No raw emoji used as functional icons anywhere — icon library
+      matches exactly what noteswift-teacher/student/parents already use.
+      All UI copy (labels, empty states, errors, AI-insight text) reads
+      as natural, professional product writing consistent with the
+      terminology and tone already used across the noteswift suite — no
+      generic AI-marketing phrasing.
+- [ ] Mock data layer is isolated and structured for an easy swap to real
+      API calls later (single flag/env toggle).
+- [ ] noteswift-backend, noteswift-teacher, noteswift-student, and
+      noteswift-parents folders are completely untouched.
+- [ ] NOTES_FOR_BACKEND_PHASE.md exists inside noteswift-school,
+      summarizing: required backend models/fields for school-admin
+      accounts, the school-staff/student data relationships assumed,
+      auth role assumptions, and every API endpoint the mock service
+      layer expects to eventually call (method, path, request shape,
+      response shape) — this is the handoff spec for Phase 2.
+- [ ] A short README.md update inside noteswift-school documenting how to
+      run the app standalone and where the mock data and demo login
+      credentials live.
+
+Do not begin Phase 2 (backend schema/route work) under any circumstances
+in this task. Stop once the above checklist is fully satisfied and
+summarize what was built.
