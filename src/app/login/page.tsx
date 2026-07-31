@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Eye, EyeOff, Loader2, Lock, Mail, ShieldAlert, Sparkles, Users, MessageSquare, BarChart3 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, ShieldAlert, Users, MessageSquare, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,8 +17,8 @@ export default function LoginPage() {
   const { toast } = useToast();
   const { login } = useSchoolAuth();
 
-  const [email, setEmail] = useState("principal.sharma@example.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -87,7 +87,7 @@ export default function LoginPage() {
       }
 
       toast({
-        title: "Welcome, Principal Sharma",
+        title: "Welcome back",
         description: "Successfully authenticated to NoteSwift School Admin Portal.",
       });
 
@@ -195,7 +195,7 @@ export default function LoginPage() {
 
           {/* Footer inside left panel */}
           <div className="relative z-10 border-t border-white/10 pt-4 flex justify-between text-xs text-blue-250 font-semibold">
-            <span>Version 1.0.0 (Phase 1 Mock)</span>
+            <span>Version 1.0.0</span>
             <span>© {new Date().getFullYear()} Note Swift</span>
           </div>
         </div>
@@ -296,17 +296,6 @@ export default function LoginPage() {
                       </p>
                     </div>
                   )}
-
-                  {/* Clean Demo Alert Box */}
-                  <div className="bg-blue-50/50 border border-blue-150 rounded-xl p-3 text-xs text-blue-750 flex items-start gap-2.5">
-                    <Sparkles className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
-                    <div className="space-y-0.5">
-                      <p className="font-extrabold text-blue-800">Demo Mode Active</p>
-                      <p className="text-gray-500 font-semibold leading-relaxed">
-                        Credentials have been pre-filled. Press button to enter dashboard.
-                      </p>
-                    </div>
-                  </div>
 
                   {/* Login Submit Button */}
                   <Button 

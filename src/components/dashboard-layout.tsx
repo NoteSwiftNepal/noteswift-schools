@@ -57,22 +57,22 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useSchoolAuth } from "@/context/school-auth-context";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { apiService } from "@/services/api";
-import { studentsDirectory, assignments, classAttendance } from "@/mocks/mock-data";
+import { schoolDataApi } from "@/services/school-data-api";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
-  const { 
-    admin, 
-    schools, 
-    activeSchool, 
-    setActiveSchool, 
-    academicYears, 
-    activeYear, 
-    setActiveYear, 
-    logout 
+  const {
+    admin,
+    schools,
+    activeSchool,
+    setActiveSchool,
+    academicYears,
+    activeYear,
+    setActiveYear,
+    logout,
+    isAdminPreview,
   } = useSchoolAuth();
   
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -91,10 +91,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const listAsn = await apiService.getAssignments();
-        setActiveAssignmentsCount(listAsn.filter(a => a.status === 'Active').length);
+        const listAsn = await schoolDataApi.getAssignments();
+        setActiveAssignmentsCount(listAsn.filter(a => a.status === 'active').length);
 
-        const listAtRisk = await apiService.getAtRiskStudents();
+        const listAtRisk = await schoolDataApi.getAtRiskStudents();
         setAtRiskCount(listAtRisk.length);
       } catch (err) {
         console.error(err);
@@ -112,7 +112,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(timer);
   }, [pathname]);
 
-  // Handle global search filter
+  // Handle global search filter — real data, debounced since it now hits
+  // the backend instead of filtering an in-memory mock array.
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
@@ -120,48 +121,48 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     }
 
     const query = searchQuery.toLowerCase();
-    const matches: any[] = [];
+    let cancelled = false;
 
-    // Search students
-    studentsDirectory.forEach(student => {
-      if (student.name.toLowerCase().includes(query) || student.id.toLowerCase().includes(query)) {
-        matches.push({
-          type: "student",
-          id: student.id,
-          title: student.name,
-          subtitle: `${student.class} • Roll ${student.roll}`,
-          url: `/students/directory?id=${student.id}`
+    const timer = setTimeout(async () => {
+      try {
+        const [studentsResult, assignmentsList] = await Promise.all([
+          schoolDataApi.listStudents({ search: searchQuery, limit: 5 }),
+          schoolDataApi.getAssignments(),
+        ]);
+        if (cancelled) return;
+
+        const matches: any[] = [];
+
+        studentsResult.data.forEach(student => {
+          matches.push({
+            type: "student",
+            id: student._id,
+            title: student.full_name,
+            subtitle: `Grade ${student.grade ?? '—'}`,
+            url: `/students/directory?id=${student._id}`
+          });
         });
-      }
-    });
 
-    // Search classes
-    classAttendance.forEach(cls => {
-      if (cls.className.toLowerCase().includes(query)) {
-        matches.push({
-          type: "class",
-          id: cls.className,
-          title: cls.className,
-          subtitle: `Class Attendance: ${cls.percentage}%`,
-          url: `/students/attendance?class=${cls.className}`
-        });
-      }
-    });
+        assignmentsList
+          .filter(asn => asn.title.toLowerCase().includes(query) || asn.subjectName?.toLowerCase().includes(query))
+          .slice(0, 5 - matches.length)
+          .forEach(asn => {
+            matches.push({
+              type: "assignment",
+              id: asn._id,
+              title: asn.title,
+              subtitle: asn.subjectName,
+              url: `/academic/assignments`
+            });
+          });
 
-    // Search assignments
-    assignments.forEach(asn => {
-      if (asn.title.toLowerCase().includes(query) || asn.subject.toLowerCase().includes(query)) {
-        matches.push({
-          type: "assignment",
-          id: asn.id,
-          title: asn.title,
-          subtitle: `${asn.subject} • ${asn.grade}`,
-          url: `/academic/assignments?id=${asn.id}`
-        });
+        setSearchResults(matches.slice(0, 5));
+      } catch (err) {
+        console.error(err);
       }
-    });
+    }, 300);
 
-    setSearchResults(matches.slice(0, 5)); // Cap at 5 results
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [searchQuery]);
 
   const handleSearchSelect = (url: string) => {
@@ -195,12 +196,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     }, 450);
   };
 
-  // Mock Notifications
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "High absentee warning: Grade 9B attendance dropped to 87.5% today.", time: "1 hour ago", unread: true, type: "warning" },
-    { id: 2, text: "New message received from parent Gopal Adhikari.", time: "2 hours ago", unread: true, type: "info" },
-    { id: 3, text: "System Auto-Insight: Grade 10 Math scores fell by 7% this term.", time: "1 day ago", unread: false, type: "alert" },
-  ]);
+  // No real notification system exists yet — starts empty rather than
+  // showing fabricated alerts.
+  const [notifications, setNotifications] = useState<{ id: number; text: string; time: string; unread: boolean; type: string }[]>([]);
 
   const unreadNotificationsCount = notifications.filter(n => n.unread).length;
 
@@ -658,6 +656,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
             </div>
           </header>
+
+          {isAdminPreview && (
+            <div className="bg-amber-500 text-white text-xs sm:text-sm font-bold text-center py-2 px-4 flex items-center justify-center gap-3 flex-wrap">
+              <span>You're viewing this school's dashboard as an admin preview — not a real principal session.</span>
+              <button
+                onClick={logout}
+                className="underline underline-offset-2 hover:no-underline shrink-0"
+              >
+                Exit Preview
+              </button>
+            </div>
+          )}
 
           {/* MAIN PAGE VIEWPORT */}
           <main className="flex-1 w-full max-w-full overflow-x-hidden p-3.5 sm:p-6 md:p-8">

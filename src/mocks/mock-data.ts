@@ -13,6 +13,7 @@ export interface AdminProfile {
   id: string;
   fullName: string;
   email: string;
+  phone_number?: string;
   role: string;
   avatar: string;
 }
