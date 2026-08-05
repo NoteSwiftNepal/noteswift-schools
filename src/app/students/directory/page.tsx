@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { StudentAvatar } from "@/components/student-avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Search, User, GraduationCap } from "lucide-react";
+import { Search, User, GraduationCap, TrendingUp, ClipboardList, PlayCircle, Flame, CalendarCheck, MessageCircleQuestion, ShieldAlert, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function StudentDirectoryContent() {
@@ -222,9 +222,156 @@ function StudentDirectoryContent() {
                   <p className="text-xs text-gray-400 font-bold">{selectedStudent.student.email}</p>
                   <div className="flex gap-2 items-center flex-wrap pt-1">
                     <Badge className="bg-blue-600 text-white font-extrabold text-[9px] rounded-full px-2 py-0.5">Grade {selectedStudent.student.grade ?? '—'}</Badge>
+                    {selectedStudent.riskStatus.isAtRisk ? (
+                      <Badge className="bg-red-50 text-red-700 border border-red-250 font-extrabold text-[9px] rounded-full px-2 py-0.5 flex items-center gap-1">
+                        <ShieldAlert className="h-3 w-3" /> At Risk
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-green-50 text-green-700 border border-green-250 font-extrabold text-[9px] rounded-full px-2 py-0.5 flex items-center gap-1">
+                        <ShieldCheck className="h-3 w-3" /> Good Standing
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </div>
+
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-150 pb-1 flex items-center gap-1.5">
+                  <TrendingUp className="h-4 w-4 text-gray-400" />
+                  Overall Progress
+                </h4>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="rounded-xl border border-gray-200 p-3 text-center">
+                    <p className="text-[9px] text-gray-450 font-bold uppercase">Progress Score</p>
+                    <p className="text-lg font-extrabold text-blue-650 mt-0.5">{selectedStudent.overallProgress.progressScore}</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 p-3 text-center">
+                    <p className="text-[9px] text-gray-450 font-bold uppercase">Avg Progress</p>
+                    <p className="text-lg font-extrabold text-gray-800 mt-0.5">{selectedStudent.overallProgress.avgProgress}%</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 p-3 text-center">
+                    <p className="text-[9px] text-gray-450 font-bold uppercase">Avg Test Score</p>
+                    <p className="text-lg font-extrabold text-gray-800 mt-0.5">{selectedStudent.assessmentPerformance.overallAvgScore}%</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-150 pb-1 flex items-center gap-1.5">
+                  <ClipboardList className="h-4 w-4 text-gray-400" />
+                  Assessment Performance
+                </h4>
+                {selectedStudent.assessmentPerformance.subjectBreakdown.length === 0 ? (
+                  <p className="text-sm text-gray-400 font-semibold text-center py-6">No test attempts yet.</p>
+                ) : (
+                  <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-200 text-[9px] font-extrabold text-gray-450 uppercase">
+                          <th className="py-2.5 px-3">Subject</th>
+                          <th className="py-2.5 px-3 text-center">Attempts</th>
+                          <th className="py-2.5 px-3 text-center">Avg %</th>
+                          <th className="py-2.5 px-3 text-right">Grade</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 font-semibold text-gray-700">
+                        {selectedStudent.assessmentPerformance.subjectBreakdown.map((sb, idx) => (
+                          <tr key={idx}>
+                            <td className="py-2.5 px-3 font-bold text-gray-800">{sb.subjectName}</td>
+                            <td className="py-2.5 px-3 text-center">{sb.attemptCount}</td>
+                            <td className="py-2.5 px-3 text-center">{sb.avgPercent}%</td>
+                            <td className="py-2.5 px-3 text-right font-extrabold text-blue-650">{sb.grade}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-150 pb-1 flex items-center gap-1.5">
+                  <PlayCircle className="h-4 w-4 text-gray-400" />
+                  Content Engagement
+                </h4>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="rounded-xl border border-gray-200 p-3 text-center">
+                    <p className="text-[9px] text-gray-450 font-bold uppercase">Videos Watched</p>
+                    <p className="text-lg font-extrabold text-gray-800 mt-0.5">{selectedStudent.contentEngagement.videosWatched}/{selectedStudent.contentEngagement.totalModules}</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 p-3 text-center">
+                    <p className="text-[9px] text-gray-450 font-bold uppercase">Sections Read</p>
+                    <p className="text-lg font-extrabold text-gray-800 mt-0.5">{selectedStudent.contentEngagement.sectionsRead}</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 p-3 text-center">
+                    <p className="text-[9px] text-gray-450 font-bold uppercase">Watch Time</p>
+                    <p className="text-lg font-extrabold text-gray-800 mt-0.5">{selectedStudent.contentEngagement.totalWatchMinutes}m</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-150 pb-1 flex items-center gap-1.5">
+                  <Flame className="h-4 w-4 text-gray-400" />
+                  Consistency
+                </h4>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="rounded-xl border border-gray-200 p-3 text-center">
+                    <p className="text-[9px] text-gray-450 font-bold uppercase">Current Streak</p>
+                    <p className="text-lg font-extrabold text-orange-600 mt-0.5">{selectedStudent.consistency.currentStreak}d</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 p-3 text-center">
+                    <p className="text-[9px] text-gray-450 font-bold uppercase">Longest Streak</p>
+                    <p className="text-lg font-extrabold text-gray-800 mt-0.5">{selectedStudent.consistency.longestStreak}d</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 p-3 text-center">
+                    <p className="text-[9px] text-gray-450 font-bold uppercase">Last Active</p>
+                    <p className="text-xs font-extrabold text-gray-800 mt-1.5 capitalize">{selectedStudent.consistency.recencyBucket.replace('_', ' ')}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-150 pb-1 flex items-center gap-1.5">
+                  <CalendarCheck className="h-4 w-4 text-gray-400" />
+                  Attendance
+                </h4>
+                {selectedStudent.attendance.totalCompletedClasses === 0 ? (
+                  <p className="text-sm text-gray-400 font-semibold text-center py-6">No completed live classes yet.</p>
+                ) : (
+                  <div className="rounded-xl border border-gray-200 p-3 flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-600">{selectedStudent.attendance.attendedCount} of {selectedStudent.attendance.totalCompletedClasses} classes attended</span>
+                    <span className="text-lg font-extrabold text-blue-650">{selectedStudent.attendance.attendanceRate}%</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-150 pb-1 flex items-center gap-1.5">
+                  <MessageCircleQuestion className="h-4 w-4 text-gray-400" />
+                  Participation
+                </h4>
+                <div className="rounded-xl border border-gray-200 p-3 flex items-center justify-between">
+                  <span className="text-xs font-bold text-gray-600">Questions asked</span>
+                  <span className="text-sm font-extrabold text-gray-800">{selectedStudent.participation.questionCount} ({selectedStudent.participation.resolvedQuestionCount} resolved)</span>
+                </div>
+              </div>
+
+              {selectedStudent.riskStatus.riskTags.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-150 pb-1 flex items-center gap-1.5">
+                    <ShieldAlert className="h-4 w-4 text-red-500" />
+                    Risk Status
+                  </h4>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedStudent.riskStatus.riskTags.map((tag, tIdx) => (
+                      <Badge key={tIdx} className="bg-red-50 text-red-700 border border-red-250 font-bold text-[9px] rounded uppercase px-2 py-0.5">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-3">
                 <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-150 pb-1 flex items-center gap-1.5">

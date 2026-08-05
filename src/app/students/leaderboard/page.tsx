@@ -25,7 +25,7 @@ function LeaderboardContent() {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-xl font-bold text-gray-800 font-headline">Student Leaderboard</h2>
-        <p className="text-xs text-gray-500 font-bold mt-1">Ranked by average course progress and assessment score.</p>
+        <p className="text-xs text-gray-500 font-bold mt-1">Ranked by a composite Progress Score — completion, assessment average, activity recency, and login streak combined.</p>
       </div>
 
       <Card className="border-gray-300 bg-white">
@@ -34,7 +34,7 @@ function LeaderboardContent() {
             <Award className="h-5 w-5 text-amber-500" />
             <span>Top Students</span>
           </CardTitle>
-          <CardDescription className="text-xs sm:text-sm text-gray-500 font-semibold">Ranked by average course progress, tie-broken by average assessment score.</CardDescription>
+          <CardDescription className="text-xs sm:text-sm text-gray-500 font-semibold">Ranked by Progress Score (40% completion, 30% assessment average, 20% recency, 10% streak).</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
@@ -57,7 +57,8 @@ function LeaderboardContent() {
                     <th className="py-3 px-4">Grade</th>
                     <th className="py-3 px-4 text-center">Courses</th>
                     <th className="py-3 px-4 text-center">Avg Progress</th>
-                    <th className="py-3 px-4 sm:px-6 text-right">Avg Score</th>
+                    <th className="py-3 px-4 text-center">Avg Score</th>
+                    <th className="py-3 px-4 sm:px-6 text-right">Progress Score</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -81,7 +82,8 @@ function LeaderboardContent() {
                       <td className="py-3.5 px-4 font-semibold text-gray-600">{item.grade ?? '—'}</td>
                       <td className="py-3.5 px-4 text-center font-bold text-gray-700">{item.enrolledCourseCount}</td>
                       <td className="py-3.5 px-4 text-center font-bold text-gray-750">{item.avgProgress}%</td>
-                      <td className="py-3.5 px-4 sm:px-6 text-right font-extrabold text-blue-650">{item.avgScore}%</td>
+                      <td className="py-3.5 px-4 text-center font-bold text-gray-750">{item.avgScore}%</td>
+                      <td className="py-3.5 px-4 sm:px-6 text-right font-extrabold text-blue-650">{item.progressScore}</td>
                     </tr>
                   ))}
                 </tbody>

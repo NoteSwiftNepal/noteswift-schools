@@ -269,7 +269,7 @@ function DashboardContent() {
             <Award className="h-5 w-5 text-amber-500" />
             Student Leaderboard
           </CardTitle>
-          <CardDescription className="text-xs sm:text-sm text-gray-500 font-semibold">Top students ranked by average course progress and score.</CardDescription>
+          <CardDescription className="text-xs sm:text-sm text-gray-500 font-semibold">Top students ranked by composite Progress Score (completion, assessment average, recency, streak).</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {leaderboard.length === 0 ? (
@@ -283,7 +283,8 @@ function DashboardContent() {
                     <th className="py-2.5 px-2 sm:px-4 sm:py-3">Student</th>
                     <th className="py-2.5 px-2 sm:px-4 sm:py-3 text-center">Grade</th>
                     <th className="py-2.5 px-2 sm:px-4 sm:py-3 text-center">Avg Progress</th>
-                    <th className="py-2.5 px-2 sm:px-4 sm:py-3 text-right">Avg Score</th>
+                    <th className="py-2.5 px-2 sm:px-4 sm:py-3 text-center">Avg Score</th>
+                    <th className="py-2.5 px-2 sm:px-4 sm:py-3 text-right">Progress Score</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -306,7 +307,8 @@ function DashboardContent() {
                       </td>
                       <td className="py-2.5 px-2 sm:px-4 text-center font-semibold text-gray-650">{item.grade ?? '—'}</td>
                       <td className="py-2.5 px-2 sm:px-4 text-center font-bold text-gray-700">{item.avgProgress}%</td>
-                      <td className="py-2.5 px-2 sm:px-4 text-right font-extrabold text-blue-650">{item.avgScore}%</td>
+                      <td className="py-2.5 px-2 sm:px-4 text-center font-bold text-gray-700">{item.avgScore}%</td>
+                      <td className="py-2.5 px-2 sm:px-4 text-right font-extrabold text-blue-650">{item.progressScore}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -324,7 +326,7 @@ function DashboardContent() {
               <AlertTriangle className="h-5 w-5 text-red-500" />
               At-Risk Students
             </CardTitle>
-            <CardDescription className="text-xs sm:text-sm text-gray-500 font-semibold">Low course progress with no recent activity.</CardDescription>
+            <CardDescription className="text-xs sm:text-sm text-gray-500 font-semibold">Low composite Progress Score — completion, assessments, recency, or streak.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6 space-y-4">
             {atRisk.length === 0 ? (

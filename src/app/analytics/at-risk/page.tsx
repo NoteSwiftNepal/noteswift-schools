@@ -26,7 +26,7 @@ function AtRiskContent() {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-xl font-bold text-gray-800 font-headline">At-Risk Academic Spotlight</h2>
-        <p className="text-xs text-gray-500 font-bold mt-1">Students with low course progress and no recent activity.</p>
+        <p className="text-xs text-gray-500 font-bold mt-1">Students whose composite Progress Score is low — flagged with the specific weak signals behind it.</p>
       </div>
 
       <Card className="border-gray-300 bg-white">
@@ -51,6 +51,7 @@ function AtRiskContent() {
                     <th className="py-3 px-4 sm:px-6">Student</th>
                     <th className="py-3 px-4 text-center">Grade</th>
                     <th className="py-3 px-4 text-center">Avg Progress</th>
+                    <th className="py-3 px-4 text-center">Progress Score</th>
                     <th className="py-3 px-4">Risk Flags</th>
                   </tr>
                 </thead>
@@ -63,6 +64,7 @@ function AtRiskContent() {
                       </td>
                       <td className="py-3.5 px-4 text-center font-semibold text-gray-650">{student.grade ?? '—'}</td>
                       <td className="py-3.5 px-4 text-center font-extrabold text-red-650">{student.avgProgress}%</td>
+                      <td className="py-3.5 px-4 text-center font-extrabold text-red-650">{student.progressScore}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex flex-wrap gap-1">
                           {student.riskTags.map((tag, tIdx) => (

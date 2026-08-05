@@ -39,6 +39,13 @@ export interface StudentSummary {
   lastLogin?: string;
 }
 
+export interface ProgressScoreBreakdown {
+  completion: number;
+  assessment: number | null;
+  recency: number;
+  streak: number;
+}
+
 export interface LeaderboardEntry {
   rank: number;
   _id: string;
@@ -49,6 +56,8 @@ export interface LeaderboardEntry {
   avgProgress: number;
   avgScore: number;
   enrolledCourseCount: number;
+  progressScore: number;
+  progressScoreBreakdown: ProgressScoreBreakdown;
 }
 
 export interface AtRiskStudent {
@@ -58,6 +67,7 @@ export interface AtRiskStudent {
   avatarEmoji?: string;
   profileImage?: string | null;
   avgProgress: number;
+  progressScore: number;
   lastAccessedAt?: string;
   riskTags: string[];
 }
@@ -82,6 +92,9 @@ export interface EngagementSummary {
   activeThisMonth: number;
   inactive: number;
   total: number;
+  avgCurrentStreak: number;
+  studentsOnActiveStreak: number;
+  longestStreak: number;
 }
 
 export interface TestSummary {
@@ -131,6 +144,60 @@ export interface StudentDetail {
     assessmentCount: number;
     avgAssessmentScore: number | null;
   }[];
+  overallProgress: {
+    avgProgress: number;
+    progressScore: number;
+    progressScoreBreakdown: ProgressScoreBreakdown;
+  };
+  assessmentPerformance: {
+    history: {
+      testId: string;
+      title: string;
+      category: string;
+      subjectName: string;
+      score: number;
+      totalMarks: number;
+      percentage: number;
+      classAvgScore: number | null;
+      passed: boolean | null;
+      submittedAt?: string;
+    }[];
+    overallAvgScore: number;
+    subjectBreakdown: { subjectName: string; avgPercent: number; attemptCount: number; grade: string }[];
+  };
+  contentEngagement: {
+    totalModules: number;
+    videosWatched: number;
+    sectionsRead: number;
+    totalWatchMinutes: number;
+  };
+  consistency: {
+    currentStreak: number;
+    longestStreak: number;
+    lastAccessedAt: string | null;
+    recencyBucket: 'today' | 'this_week' | 'this_month' | 'inactive' | 'never';
+  };
+  attendance: {
+    totalCompletedClasses: number;
+    attendedCount: number;
+    attendanceRate: number | null;
+    records: {
+      liveClassId: string;
+      title: string;
+      subjectName: string;
+      scheduledAt: string;
+      status: string;
+      duration: number | null;
+    }[];
+  };
+  participation: {
+    questionCount: number;
+    resolvedQuestionCount: number;
+  };
+  riskStatus: {
+    isAtRisk: boolean;
+    riskTags: string[];
+  };
 }
 
 export const schoolDataApi = {
